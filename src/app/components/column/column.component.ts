@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { TaskComponent } from '../task/task.component';
 import {
   CdkDrag,
