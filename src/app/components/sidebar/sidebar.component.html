@@ -1,22 +1,33 @@
-<div class="w-{{60}} flex flex-col justify-between border-r-2 h-full pt-6">
-  <div class="flex flex-col gap-4">
-    <h4 class="text-gray-500">All boards</h4>
-    <div class="bg-primary text-white mr-5 px-3 py-2 rounded-r-full">
-      Platform Launch
+<div class="{{ sidebarState ? 'w-60' : '' }} relative border-r-2 h-full">
+  @if (isSidebarOn|async) {
+  <div class="flex flex-col justify-between h-full pt-6">
+    <div class="flex flex-col gap-4">
+      <h4 class="text-gray-500">All boards</h4>
+      @for (board of (boards|async); track board.id) {
+      <div
+        class="bg-primary text-white mr-5 px-3 py-2 rounded-r-full hover:cursor-pointer"
+      >
+        {{ board.title }}
+      </div>
+      }
     </div>
-  </div>
 
-  <div class=" grid grid-rows-2 gap-4">
-    <div
-      class="flex justify-around bg-primary bg-opacity-10 rounded-r-md text-white mr-5 px-3 py-2"
-    >
-      l
-      <label class="switch">
-        <input type="checkbox" />
-        <span class="slider round"></span>
-      </label>
-      d
+    <div class="grid grid-rows-2 gap-4">
+      <div
+        class="flex justify-around bg-primary bg-opacity-10 rounded-r-md text-white mr-5 px-3 py-2"
+      >
+        l
+        <label for="theme" class="switch">
+          <input name="theme" id="theme" type="checkbox" />
+          <span class="slider round"></span>
+        </label>
+        d
+      </div>
+      <h2 class="ml-2">O Hidesidebar</h2>
     </div>
-    <h2 class=" ml-2">O Hidesidebar</h2>
   </div>
+  }
+  <div (click)="toggleSidebar()"
+    class="absolute rounded-r-full bottom-12 -right-12 w-12 h-9 bg-black hover:cursor-pointer"
+  ></div>
 </div>
