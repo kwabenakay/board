@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 export interface Default {
   id: string;
@@ -52,13 +52,17 @@ export class BoardDataService {
     },
   ];
 
-  private brd = new Subject<Board>();
+  private brd = new BehaviorSubject<Board>(this.boards[0]);
   private selectedBoard = this.brd.asObservable();
 
   private availablebrds = new BehaviorSubject<Default[]>(
     this.filterAvailableBoards()
   );
-  private availableBoards = this.brd.asObservable();
+  private availableBoards = this.availablebrds.asObservable();
+  private sideBarOn = new BehaviorSubject<boolean>(true);
+  private isSignalOn = this.sideBarOn.asObservable();
+
+  public selectedBoardInd = 0;
 
   private filterAvailableBoards(): Default[] {
     return this.boards.map((board) => ({ id: board.id, title: board.title }));
@@ -97,33 +101,44 @@ export class BoardDataService {
     return -1;
   }
 
-  public getactiveBoard(): Observable<Board> {
+  public getActiveBoard(): Observable<Board> {
     return this.selectedBoard;
   }
 
   public emitSelectedBoard(boardId: string): void {
-    this.brd.next(this.boards.filter((board) => board.id === boardId)[0]);
+    this.brd.next(
+      this.boards.filter((board, ind) => {
+        this.selectedBoardInd = ind;
+        return board.id === boardId;
+      })[0]
+    );
   }
 
-  public getAvailableBoards(): Observable<Default> {
+  public getAvailableBoards(): Observable<Default[]> {
     return this.availableBoards;
   }
 
-  public emitAvailableBoards() {
+  public emitAvailableBoards(): void {
     this.availablebrds.next(this.filterAvailableBoards());
+  }
+
+  public getIsSidebarOn(): Observable<boolean> {
+    return this.isSignalOn;
+  }
+
+  public emitIsSidebar(current: boolean):void {
+    this.sideBarOn.next(current);
   }
 
   public moveTask(
     taskId: string,
     initialColumnId: string,
-    currentColumnId: string,
-    boardId: string
-  ) {
-    const boardInd = this.getBoardIndex(boardId);
+    currentColumnId: string
+  ): void {
+    const boardInd = this.selectedBoardInd;
     const initialColumnInd = this.getColumnIndex(initialColumnId, boardInd);
     const taskInd = this.getTaskIndex(taskId, boardInd, initialColumnInd);
     const currentColumnInd = this.getColumnIndex(currentColumnId, boardInd);
-
     const task = this.boards[boardInd].columns[initialColumnInd].tasks.splice(
       taskInd,
       1

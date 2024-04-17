@@ -1,6 +1,14 @@
-<div class="p-2 flex flex-col gap-2">
-  <app-task />
-  <app-task />
-  <app-task />
-  <app-task />
+<div cdkDropListGroup class=" flex">
+  @for (column of (activeBoard|async)?.columns; track column.id) {
+  <div
+    cdkDropList
+    (cdkDropListDropped)="handleDrop($event)"
+    [cdkDropListData]="column"
+    class="p-2 flex flex-col gap-2"
+  >
+    <h2 class="text-center">{{ column.title | titlecase }}</h2>
+    @for (task of column.tasks; track task.id) {
+    <app-task [taskData]="task" cdkDrag [cdkDragData]="task" />
+    }
+  </div>}
 </div>
